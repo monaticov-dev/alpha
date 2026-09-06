@@ -1,0 +1,222 @@
+import com.gtnewhorizons.retrofuturagradle.mcp.MCPTasks
+import com.gtnewhorizons.retrofuturagradle.minecraft.MinecraftTasks
+import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
+import com.gtnewhorizons.retrofuturagradle.util.Distribution
+
+import javax.inject.Inject
+
+/**
+ * Thin RunMinecraftTask subclass for Java 25 launches,
+ * mirroring GTNHGradle's RunHotswappableMinecraftTask.
+ */
+abstract class RunModernJavaMinecraftTask extends RunMinecraftTask {
+    @Inject
+    RunModernJavaMinecraftTask(Distribution side, Gradle gradle) {
+        super(side, gradle)
+    }
+}
+
+plugins {
+    id 'java-library'
+    id 'com.gtnewhorizons.retrofuturagradle' version '2.0.3'
+}
+
+group = 'com.alpha'
+version = '1.0.0'
+
+// The mod compiles with Java 8 for compatibility with all 1.7.10 servers.
+// The JDK is auto-provisioned via the foojay-resolver plugin in settings.gradle.
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+        vendor = JvmVendorSpec.AZUL
+    }
+}
+
+// Main RFG configuration, see JavaDoc com.gtnewhorizons.retrofuturagradle.MinecraftExtension
+minecraft {
+    mcVersion = '1.7.10'
+
+    // Username for client launch configurations
+    username = 'Developer'
+
+    // Latest LWJGL3 matching the bundled lwjgl3ify
+    lwjgl3Version = '3.4.2'
+
+    // Bindings proven required by lwjgl3ify 3.0.31 references (glfw/openal/opengl
+    // for window/sound/render, jemalloc as the LWJGL3 default allocator, stb for
+    // texture stitching, sdl for the event loop/text input, spng for image loading).
+    // tinyfd is intentionally omitted: zero references in lwjgl3ify and Forge.
+    lwjgl3Bindings = ['glfw', 'openal', 'opengl', 'jemalloc', 'stb', 'sdl', 'spng']
+
+    // Generate VERSION/MOD_ID fields in the injected Tags class
+    injectedTags.put('VERSION', project.version)
+    injectedTags.put('MOD_ID', 'alpha')
+
+    // Enable assertions in the mod package on client/server launches
+    extraRunJvmArguments.add("-ea:${project.group}")
+}
+
+// Generates the com.alpha.Tags class with the mod version
+tasks.injectTags.configure {
+    outputClassName = "${project.group}.Tags"
+}
+
+// Substitutes the gradle version into mcmod.info
+tasks.processResources.configure {
+    def projVersion = project.version.toString() // Needed for configuration cache
+    inputs.property('version', projVersion)
+    filesMatching('mcmod.info') {
+        expand(modVersion: projVersion)
+    }
+}
+
+repositories {
+    maven {
+        name = 'GTNH Maven'
+        url = 'https://nexus.gtnewhorizons.com/repository/public/'
+    }
+}
+
+configurations {
+    // Additional runtime for modern Java (17+): lwjgl3ify and its dependencies
+    modernJavaDependencies {
+        description = 'Additional runtime dependencies for running on Java 17+'
+        extendsFrom configurations.runtimeClasspath
+        canBeConsumed = false
+        canBeResolved = true
+    }
+    // lwjgl3ify forgePatches jar must come first on modern-Java launch classpaths
+    modernJavaPatchDependencies {
+        description = 'Classpath-first patches for running on Java 17+'
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    // lwjgl3ify: brings LWJGL3 and Java 17+ support to Minecraft 1.7.10 (pulls UniMixins transitively)
+    modernJavaDependencies 'com.github.GTNewHorizons:lwjgl3ify:3.0.31'
+    modernJavaPatchDependencies('com.github.GTNewHorizons:lwjgl3ify:3.0.31:forgePatches') {
+        transitive = false
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Java 25 launch tasks (same mechanism as GTNHGradle runClient25):
+// lwjgl3ify patches + RetroFuturaBootstrap + --add-opens JVM arguments.
+// ---------------------------------------------------------------------------
+
+// JVM arguments required to run 1.7.10 on modern Java (Java 17+ incl. 25)
+def modernJvmArgs = [
+    '-Dfile.encoding=UTF-8',
+    '-Djava.system.class.loader=com.gtnewhorizons.retrofuturabootstrap.RfbSystemClassLoader',
+    // Suppress the CDS warning caused by the custom system class loader
+    '-Xlog:cds*=error',
+    '--enable-native-access', 'ALL-UNNAMED',
+    '--add-opens', 'java.base/java.io=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.lang.ref=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.net.spi=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.net=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.nio.channels=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.nio.charset=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.nio.file=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.nio=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.text=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.time.chrono=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.time.format=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.time.temporal=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.time.zone=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.time=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.util.concurrent.atomic=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.util.concurrent.locks=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.util.jar=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.util.zip=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+    '--add-opens', 'java.base/jdk.internal.loader=ALL-UNNAMED',
+    '--add-opens', 'java.base/jdk.internal.misc=ALL-UNNAMED',
+    '--add-opens', 'java.base/jdk.internal.ref=ALL-UNNAMED',
+    '--add-opens', 'java.base/jdk.internal.reflect=ALL-UNNAMED',
+    '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
+    '--add-opens', 'java.desktop/com.sun.imageio.plugins.png=ALL-UNNAMED',
+    '--add-opens', 'java.desktop/sun.awt.image=ALL-UNNAMED',
+    '--add-opens', 'java.desktop/sun.awt=ALL-UNNAMED',
+    '--add-opens', 'java.sql.rowset/javax.sql.rowset.serial=ALL-UNNAMED',
+    '--add-opens', 'jdk.dynalink/jdk.dynalink.beans=ALL-UNNAMED',
+    '--add-opens', 'jdk.naming.dns/com.sun.jndi.dns=ALL-UNNAMED,java.naming',
+]
+
+def mcpTasks = extensions.getByType(MCPTasks)
+def mcTasks = extensions.getByType(MinecraftTasks)
+def modernJavaToolchain = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(25)
+}
+
+def configureModernRun = { RunMinecraftTask task, Distribution side ->
+    task.setup(project)
+    task.group = 'Modded Minecraft'
+    task.dependsOn(mcpTasks.launcherSources.classesTaskName, mcTasks.taskDownloadVanillaAssets, mcpTasks.taskPackagePatchedMc, tasks.named('jar'))
+    task.username = minecraft.username
+    task.userUUID = minecraft.userUUID
+    task.lwjglVersion = 3
+    task.javaLauncher = modernJavaToolchain
+    // forgePatches first, then launcher/patched MC/mod/dependencies
+    task.classpath(configurations.modernJavaPatchDependencies)
+    task.classpath(mcpTasks.taskPackageMcLauncher)
+    task.classpath(mcpTasks.taskPackagePatchedMc)
+    task.classpath(mcpTasks.patchedConfiguration)
+    task.classpath(tasks.named('jar'))
+    task.classpath(configurations.modernJavaDependencies)
+    task.mainClass = (side == Distribution.CLIENT) ? 'GradleStart' : 'GradleStartServer'
+    // Route launching through RetroFuturaBootstrap instead of launchwrapper
+    task.systemProperty('gradlestart.bouncerClient', 'com.gtnewhorizons.retrofuturabootstrap.MainStartOnFirstThread')
+    task.systemProperty('gradlestart.bouncerServer', 'com.gtnewhorizons.retrofuturabootstrap.Main')
+    task.extraJvmArgs.addAll(modernJvmArgs)
+}
+
+def runClient25Task = tasks.register('runClient25', RunModernJavaMinecraftTask, Distribution.CLIENT)
+runClient25Task.configure { task ->
+    task.description = 'Launches the deobfuscated client with your mod on Java 25'
+    configureModernRun(task, Distribution.CLIENT)
+}
+
+def runServer25Task = tasks.register('runServer25', RunModernJavaMinecraftTask, Distribution.DEDICATED_SERVER)
+runServer25Task.configure { task ->
+    task.description = 'Launches the deobfuscated server with your mod on Java 25'
+    configureModernRun(task, Distribution.DEDICATED_SERVER)
+}
+
+// ICU4J removal: pinpoint removal of exactly one dependency,
+// com.ibm.icu:icu4j-core-mojang:51.2, from vanilla_minecraft.
+// Runs in projectsEvaluated: strictly after the RFG afterEvaluate that adds
+// the dependencies and strictly before dependency resolution.
+// applyMcDependencies stays enabled; other dependencies, extendsFrom chains
+// and versions are untouched.
+mcpTasks.getTaskPatchDecompiledJar().configure { task ->
+    task.getPatches().from(file('src/mcPatches/net/minecraft/client/gui/FontRenderer.java.patch'))
+}
+
+gradle.projectsEvaluated { g ->
+    def cfg = g.rootProject.configurations.findByName('vanilla_minecraft')
+    if (cfg == null) {
+        throw new GradleException("ICU removal: configuration 'vanilla_minecraft' not found")
+    }
+    def icu = cfg.dependencies.findAll { d ->
+        d.group == 'com.ibm.icu' && d.name == 'icu4j-core-mojang' && d.version == '51.2'
+    }
+    if (icu.size() != 1) {
+        throw new GradleException("ICU removal: expected exactly 1 ICU dependency, found ${icu.size()}: ${icu}")
+    }
+    int before = cfg.dependencies.size()
+    cfg.dependencies.removeAll(icu)
+    int after = cfg.dependencies.size()
+    if (after != before - 1) {
+        throw new GradleException("ICU removal: expected exactly one removal (${before} -> ${after})")
+    }
+    if (cfg.dependencies.any { d -> d.group == 'com.ibm.icu' }) {
+        throw new GradleException('ICU removal: ICU dependency still present after removal')
+    }
+}

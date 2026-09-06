@@ -1,0 +1,52 @@
+--- ../src-base/minecraft/net/minecraft/client/gui/FontRenderer.java
++++ ../src-work/minecraft/net/minecraft/client/gui/FontRenderer.java
+@@ -1,8 +1,5 @@
+ package net.minecraft.client.gui;
+ 
+-import com.ibm.icu.text.ArabicShaping;
+-import com.ibm.icu.text.ArabicShapingException;
+-import com.ibm.icu.text.Bidi;
+ import cpw.mods.fml.relauncher.Side;
+ import cpw.mods.fml.relauncher.SideOnly;
+ import java.awt.image.BufferedImage;
+@@ -280,15 +277,7 @@
+     private String func_147647_b(String p_147647_1_)
+     {
+-        try
+-        {
+-            Bidi bidi = new Bidi((new ArabicShaping(8)).shape(p_147647_1_), 127);
+-            bidi.setReorderingMode(0);
+-            return bidi.writeReordered(2);
+-        }
+-        catch (ArabicShapingException arabicshapingexception)
+-        {
+-            return p_147647_1_;
+-        }
++        return p_147647_1_;
+     }
+ 
+     private void func_78265_b()
+@@ -451,13 +440,7 @@
+     private int func_78274_b(String p_78274_1_, int p_78274_2_, int p_78274_3_, int p_78274_4_, int p_78274_5_, boolean p_78274_6_)
+     {
+-        if (this.field_78294_m)
+-        {
+-            int i1 = this.func_78256_a(this.func_147647_b(p_78274_1_));
+-            p_78274_2_ = p_78274_2_ + p_78274_4_ - i1;
+-        }
+-
+         return this.func_78258_a(p_78274_1_, p_78274_2_, p_78274_3_, p_78274_5_, p_78274_6_);
+     }
+ 
+@@ -462,13 +445,7 @@
+         }
+         else
+         {
+-            if (this.field_78294_m)
+-            {
+-                p_78258_1_ = this.func_147647_b(p_78258_1_);
+-            }
+-
+             if ((p_78258_4_ & -67108864) == 0)
+             {
+                 p_78258_4_ |= -16777216;
