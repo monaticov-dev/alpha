@@ -210,17 +210,97 @@ gradle.projectsEvaluated { g ->
         task.getPatches().from(g.rootProject.file('src/mcPatches/net/minecraft/server/dedicated/DedicatedServer.java.patch'))
         task.getPatches().from(g.rootProject.file('src/mcPatches/net/minecraft/client/settings/GameSettings.java.patch'))
         task.getPatches().from(g.rootProject.file('src/mcPatches/net/minecraft/client/gui/GuiOptions.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/cpw/mods/fml/common/asm/FMLSanityChecker.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/cpw/mods/fml/common/FMLModContainer.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/cpw/mods/fml/common/ModContainer.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/cpw/mods/fml/common/DummyModContainer.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/cpw/mods/fml/common/FMLContainer.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/cpw/mods/fml/common/InjectedModContainer.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/cpw/mods/fml/common/MinecraftDummyContainer.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/cpw/mods/fml/common/Loader.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/cpw/mods/fml/common/Mod.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/net/minecraftforge/common/ForgeModContainer.java.patch'))
     }
+    // Full excision: strip the 5 deleted sources from the patched-sources jars,
+    // so no downstream consumer (remap, decompress, IDE sync) ever sees them.
+    // Hard lesson: stripping only the SRG jar is NOT enough — the remap task may
+    // run on input cached/ordered before the strip, leaving a dirty MCP jar that
+    // resurrects the files at decompress time. Hence both jars are stripped, plus
+    // the 4 dead Snooper lang lines are cut from en_US.lang (mcPatches cannot
+    // touch resources: the patch context covers only .java sources).
+    // The file-level Delete below remains as a safety net for minecraft-src.
+    def stripJar = { File jarFile ->
+        def victims = [
+            'net/minecraft/profiler/PlayerUsageSnooper.java',
+            'net/minecraft/profiler/IPlayerUsage.java',
+            'net/minecraft/client/gui/GuiSnooper.java',
+            'cpw/mods/fml/common/event/FMLFingerprintViolationEvent.java',
+            'cpw/mods/fml/common/CertificateHelper.java'
+        ] as Set
+        def deadLangKeys = [
+            'options.snooper=',
+            'options.snooper.view=',
+            'options.snooper.title=',
+            'options.snooper.desc='
+        ]
+        def tmp = new File(jarFile.parentFile, jarFile.name + '.stripped')
+        def zin = new java.util.zip.ZipFile(jarFile)
+        try {
+            tmp.withOutputStream { fos ->
+                def zout = new java.util.zip.ZipOutputStream(fos)
+                try {
+                    zin.entries().each { e ->
+                        if (victims.contains(e.name)) return
+                        if (!e.isDirectory() && e.name == 'assets/minecraft/lang/en_US.lang') {
+                            def text = zin.getInputStream(e).getText('UTF-8')
+                            def kept = text.readLines().findAll { line ->
+                                !deadLangKeys.any { k -> line.startsWith(k) }
+                            }
+                            zout.putNextEntry(new java.util.zip.ZipEntry(e.name))
+                            zout.write((kept.join('\n') + '\n').getBytes('UTF-8'))
+                            zout.closeEntry()
+                            return
+                        }
+                        zout.putNextEntry(new java.util.zip.ZipEntry(e.name))
+                        if (!e.isDirectory()) {
+                            zin.getInputStream(e).withCloseable { ins -> zout << ins }
+                        }
+                        zout.closeEntry()
+                    }
+                } finally { zout.close() }
+            }
+        } finally { zin.close() }
+        if (!jarFile.delete() || !tmp.renameTo(jarFile)) {
+            throw new GradleException('stripDeletedSources: could not replace ' + jarFile)
+        }
+    }
+    def stripDeletedSources = g.rootProject.tasks.register('stripDeletedSources') {
+        dependsOn(mcpTasks.getTaskPatchDecompiledJar())
+        doLast {
+            stripJar(mcpTasks.getTaskPatchDecompiledJar().get().getOutputJar().get().getAsFile())
+        }
+    }
+    mcpTasks.getTaskRemapDecompiledJar().configure { t -> t.dependsOn(stripDeletedSources) }
+    def stripMcpSources = g.rootProject.tasks.register('stripMcpSources') {
+        dependsOn(mcpTasks.getTaskRemapDecompiledJar())
+        doLast {
+            stripJar(mcpTasks.getTaskRemapDecompiledJar().get().getOutputJar().get().getAsFile())
+        }
+    }
+    mcpTasks.getTaskDecompressDecompiledSources().configure { t -> t.dependsOn(stripMcpSources) }
     // Snooper removal: physically delete the 3 Snooper sources after decompress.
     // mcPatches cannot delete files (proven via RFG sources: ContextualPatch DELETE
     // mode leaves a 0-byte entry via fileMap.put). This task has no outputs, so it
     // is never UP-TO-DATE-skipped (a doLast on the Copy task would be skipped).
+    // Fingerprint removal: same mechanism deletes the 2 fingerprint-only files.
     def deleteSnooperSources = g.rootProject.tasks.register('deleteSnooperSources', Delete) {
         dependsOn(mcpTasks.getTaskDecompressDecompiledSources())
         delete(
             g.rootProject.file('build/rfg/minecraft-src/java/net/minecraft/profiler/PlayerUsageSnooper.java'),
             g.rootProject.file('build/rfg/minecraft-src/java/net/minecraft/profiler/IPlayerUsage.java'),
-            g.rootProject.file('build/rfg/minecraft-src/java/net/minecraft/client/gui/GuiSnooper.java')
+            g.rootProject.file('build/rfg/minecraft-src/java/net/minecraft/client/gui/GuiSnooper.java'),
+            g.rootProject.file('build/rfg/minecraft-src/java/cpw/mods/fml/common/event/FMLFingerprintViolationEvent.java'),
+            g.rootProject.file('build/rfg/minecraft-src/java/cpw/mods/fml/common/CertificateHelper.java')
         )
     }
     mcpTasks.getTaskBuildPatchedMc().configure { t -> t.dependsOn(deleteSnooperSources) }

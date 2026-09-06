@@ -1,0 +1,86 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/FMLModContainer.java
++++ ../src-work/minecraft/cpw/mods/fml/common/FMLModContainer.java
+@@ -19,5 +19,4 @@
+ import java.lang.reflect.Method;
+ import java.lang.reflect.Modifier;
+-import java.security.cert.Certificate;
+ import java.util.Arrays;
+ import java.util.List;
+@@ -34,6 +33,3 @@
+ import com.google.common.collect.ArrayListMultimap;
+-import com.google.common.collect.ImmutableList;
+-import com.google.common.collect.ImmutableList.Builder;
+ import com.google.common.collect.ImmutableMap;
+-import com.google.common.collect.ImmutableSet;
+ import com.google.common.collect.ListMultimap;
+@@ -53,3 +49,2 @@
+ import cpw.mods.fml.common.event.FMLEvent;
+-import cpw.mods.fml.common.event.FMLFingerprintViolationEvent;
+ import cpw.mods.fml.common.network.NetworkRegistry;
+@@ -76,5 +71,2 @@
+     private VersionRange minecraftAccepted;
+-    private boolean fingerprintNotPresent;
+-    private Set<String> sourceFingerprints;
+-    private Certificate certificate;
+     private String modLanguage;
+@@ -440,40 +432,4 @@
+             Class<?> clazz = Class.forName(className, true, modClassLoader);
+ 
+-            Certificate[] certificates = clazz.getProtectionDomain().getCodeSource().getCertificates();
+-            int len = 0;
+-            if (certificates != null)
+-            {
+-                len = certificates.length;
+-            }
+-            Builder<String> certBuilder = ImmutableList.<String>builder();
+-            for (int i = 0; i < len; i++)
+-            {
+-                certBuilder.add(CertificateHelper.getFingerprint(certificates[i]));
+-            }
+-
+-            ImmutableList<String> certList = certBuilder.build();
+-            sourceFingerprints = ImmutableSet.copyOf(certList);
+-
+-            String expectedFingerprint = (String) descriptor.get("certificateFingerprint");
+-
+-            fingerprintNotPresent = true;
+-
+-            if (expectedFingerprint != null && !expectedFingerprint.isEmpty())
+-            {
+-                if (!sourceFingerprints.contains(expectedFingerprint))
+-                {
+-                    Level warnLevel = Level.ERROR;
+-                    if (source.isDirectory())
+-                    {
+-                        warnLevel = Level.TRACE;
+-                    }
+-                    FMLLog.log(getModId(), warnLevel, "The mod %s is expecting signature %s for source %s, however there is no signature matching that description", getModId(), expectedFingerprint, source.getName());
+-                }
+-                else
+-                {
+-                    certificate = certificates[certList.indexOf(expectedFingerprint)];
+-                    fingerprintNotPresent = false;
+-                }
+-            }
+ 
+             @SuppressWarnings("unchecked")
+             List<Map<String,Object>> props = (List<Map<String, Object>>) descriptor.get("customProperties");
+@@ -507,7 +463,3 @@
+             NetworkRegistry.INSTANCE.register(this, clazz, (String)(descriptor.containsKey("acceptableRemoteVersions") ? descriptor.get("acceptableRemoteVersions") : null), event.getASMHarvestedData());
+-            if (fingerprintNotPresent)
+-            {
+-                eventBus.post(new FMLFingerprintViolationEvent(source.isDirectory(), source, ImmutableSet.copyOf(this.sourceFingerprints), expectedFingerprint));
+-            }
+             ProxyInjector.inject(this, event.getASMHarvestedData(), FMLCommonHandler.instance().getSide(), getLanguageAdapter());
+             processFieldAnnotations(event.getASMHarvestedData());
+@@ -566,9 +518,4 @@
+     }
+ 
+-    @Override
+-    public Certificate getSigningCertificate()
+-    {
+-        return certificate;
+-    }
+-
+     @Override
+     public String toString()

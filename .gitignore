@@ -5,17 +5,17 @@ out/
 !build.gradle
 !settings.gradle
 
-# Runtime / generated
-run/
-logs/
-crash-reports/
-natives/
-config/
-mods/
-resourcepacks/
-saves/
-screenshots/
-world/
+# Runtime / generated (root-anchored: bare names would also match src/mcPatches/cpw/mods/...)
+/run/
+/logs/
+/crash-reports/
+/natives/
+/config/
+/mods/
+/resourcepacks/
+/saves/
+/screenshots/
+/world/
 eula.txt
 server.properties
 usernamecache.json

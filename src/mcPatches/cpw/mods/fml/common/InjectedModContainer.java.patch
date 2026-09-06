@@ -1,0 +1,17 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/InjectedModContainer.java
++++ ../src-work/minecraft/cpw/mods/fml/common/InjectedModContainer.java
+@@ -15,4 +15,3 @@
+ import java.io.File;
+-import java.security.cert.Certificate;
+ import java.util.List;
+ import java.util.Map;
+@@ -155,9 +154,4 @@
+     }
+ 
+-    @Override
+-    public Certificate getSigningCertificate()
+-    {
+-        return wrappedContainer.getSigningCertificate();
+-    }
+ 
+     @Override

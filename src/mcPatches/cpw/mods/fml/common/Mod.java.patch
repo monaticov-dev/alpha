@@ -1,0 +1,29 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/Mod.java
++++ ../src-work/minecraft/cpw/mods/fml/common/Mod.java
+@@ -20,5 +20,4 @@
+ import cpw.mods.fml.client.IModGuiFactory;
+ import cpw.mods.fml.common.event.FMLEvent;
+-import cpw.mods.fml.common.event.FMLFingerprintViolationEvent;
+ import cpw.mods.fml.common.event.FMLInitializationEvent;
+ import cpw.mods.fml.common.event.FMLInterModComms;
+@@ -127,14 +126,3 @@
+     String bukkitPlugin() default "";
+-    /**
+-     * Specifying this field allows for a mod to expect a signed jar with a fingerprint matching this value.
+-     * The fingerprint should be SHA-1 encoded, lowercase with ':' removed. An empty value indicates that
+-     * the mod is not expecting to be signed.
+-     *
+-     * Any incorrectness of the fingerprint, be it missing or wrong, will result in the {@link FMLFingerprintViolationEvent}
+-     * event firing <i>prior to any other event on the mod</i>.
+-     *
+-     * @return A certificate fingerprint that is expected for this mod.
+-     */
+-    String certificateFingerprint() default "";
+ 
+     /**
+@@ -244,5 +232,3 @@
+      * <ul>
+-     * <li> {@link FMLFingerprintViolationEvent} : Sent just before {@link FMLPreInitializationEvent}
+-     * if something is wrong with your mod signature</li>
+      * <li> {@link IMCEvent} : Sent just after {@link FMLInitializationEvent} if you have IMC messages waiting
+      * from other mods</li>

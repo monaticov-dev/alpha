@@ -1,0 +1,8 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/ModContainer.java
++++ ../src-work/minecraft/cpw/mods/fml/common/ModContainer.java
+@@ -134,5 +134,4 @@
+     VersionRange acceptableMinecraftVersionRange();
+ 
+-    Certificate getSigningCertificate();
+ 
+     public static final Map<String,String> EMPTY_PROPERTIES = ImmutableMap.of();

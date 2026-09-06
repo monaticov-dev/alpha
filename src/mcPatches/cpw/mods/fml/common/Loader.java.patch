@@ -1,0 +1,24 @@
+--- ../src-base/minecraft/cpw/mods/fml/common/Loader.java
++++ ../src-work/minecraft/cpw/mods/fml/common/Loader.java
+@@ -524,21 +524,4 @@
+         });
+ 
+-        FMLLog.fine("Mod signature data");
+-        FMLLog.fine(" \tValid Signatures:");
+-        for (ModContainer mod : getActiveModList())
+-        {
+-            if (mod.getSigningCertificate() != null)
+-                FMLLog.fine("\t\t(%s) %s\t(%s\t%s)\t%s", CertificateHelper.getFingerprint(mod.getSigningCertificate()), mod.getModId(), mod.getName(), mod.getVersion(), mod.getSource().getName());
+-        }
+-        FMLLog.fine(" \tMissing Signatures:");
+-        for (ModContainer mod : getActiveModList())
+-        {
+-            if (mod.getSigningCertificate() == null)
+-                FMLLog.fine("\t\t%s\t(%s\t%s)\t%s", mod.getModId(), mod.getName(), mod.getVersion(), mod.getSource().getName());
+-        }
+-        if (getActiveModList().isEmpty())
+-        {
+-            FMLLog.fine("No user mod signature data found");
+-        }
+         progressBar.step("Initializing mods Phase 1");
+         modController.transition(LoaderState.PREINITIALIZATION, false);
