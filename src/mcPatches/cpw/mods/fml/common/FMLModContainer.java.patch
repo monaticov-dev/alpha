@@ -23,7 +23,7 @@
 -    private Set<String> sourceFingerprints;
 -    private Certificate certificate;
      private String modLanguage;
-@@ -440,40 +432,4 @@
+@@ -440,41 +432,5 @@
              Class<?> clazz = Class.forName(className, true, modClassLoader);
  
 -            Certificate[] certificates = clazz.getProtectionDomain().getCodeSource().getCertificates();
@@ -73,7 +73,7 @@
 -            }
              ProxyInjector.inject(this, event.getASMHarvestedData(), FMLCommonHandler.instance().getSide(), getLanguageAdapter());
              processFieldAnnotations(event.getASMHarvestedData());
-@@ -566,9 +518,4 @@
+@@ -566,10 +518,4 @@
      }
  
 -    @Override

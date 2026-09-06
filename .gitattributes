@@ -1,0 +1,4 @@
+# Patches must stay LF on every checkout: RFG reads them via readLine
+# (CRLF-safe either way), but LF keeps `patch --dry-run`, `file` and
+# diffs deterministic regardless of core.autocrlf.
+*.patch text eol=lf
