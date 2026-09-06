@@ -200,6 +200,30 @@ mcpTasks.getTaskPatchDecompiledJar().configure { task ->
 }
 
 gradle.projectsEvaluated { g ->
+    // Snooper removal: our Minecraft patch must apply AFTER Forge/FML archives
+    // (RFG appends its zips in afterEvaluate, and one FML hunk anchors on the
+    // 'implements IPlayerUsage' line this patch removes).
+    mcpTasks.getTaskPatchDecompiledJar().configure { task ->
+        task.getPatches().from(g.rootProject.file('src/mcPatches/net/minecraft/client/Minecraft.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/net/minecraft/server/integrated/IntegratedServer.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/net/minecraft/server/MinecraftServer.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/net/minecraft/server/dedicated/DedicatedServer.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/net/minecraft/client/settings/GameSettings.java.patch'))
+        task.getPatches().from(g.rootProject.file('src/mcPatches/net/minecraft/client/gui/GuiOptions.java.patch'))
+    }
+    // Snooper removal: physically delete the 3 Snooper sources after decompress.
+    // mcPatches cannot delete files (proven via RFG sources: ContextualPatch DELETE
+    // mode leaves a 0-byte entry via fileMap.put). This task has no outputs, so it
+    // is never UP-TO-DATE-skipped (a doLast on the Copy task would be skipped).
+    def deleteSnooperSources = g.rootProject.tasks.register('deleteSnooperSources', Delete) {
+        dependsOn(mcpTasks.getTaskDecompressDecompiledSources())
+        delete(
+            g.rootProject.file('build/rfg/minecraft-src/java/net/minecraft/profiler/PlayerUsageSnooper.java'),
+            g.rootProject.file('build/rfg/minecraft-src/java/net/minecraft/profiler/IPlayerUsage.java'),
+            g.rootProject.file('build/rfg/minecraft-src/java/net/minecraft/client/gui/GuiSnooper.java')
+        )
+    }
+    mcpTasks.getTaskBuildPatchedMc().configure { t -> t.dependsOn(deleteSnooperSources) }
     def cfg = g.rootProject.configurations.findByName('vanilla_minecraft')
     if (cfg == null) {
         throw new GradleException("ICU removal: configuration 'vanilla_minecraft' not found")

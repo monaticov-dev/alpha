@@ -1,0 +1,69 @@
+--- ../src-base/minecraft/net/minecraft/client/settings/GameSettings.java
++++ ../src-work/minecraft/net/minecraft/client/settings/GameSettings.java
+@@ -78,5 +78,4 @@
+     public boolean field_74358_q;
+     public float field_74357_r;
+-    public boolean field_74355_t;
+     public boolean field_74353_u;
+     public boolean field_74352_v;
+@@ -162,5 +161,4 @@
+         this.field_74358_q = true;
+         this.field_74357_r = 1.0F;
+-        this.field_74355_t = true;
+         this.field_74352_v = true;
+         this.field_82881_y = true;
+@@ -232,5 +230,4 @@
+         this.field_74358_q = true;
+         this.field_74357_r = 1.0F;
+-        this.field_74355_t = true;
+         this.field_74352_v = true;
+         this.field_82881_y = true;
+@@ -529,8 +526,4 @@
+         }
+ 
+-        if (p_74306_1_ == GameSettings.Options.SNOOPER_ENABLED)
+-        {
+-            this.field_74355_t = !this.field_74355_t;
+-        }
+-
+         if (p_74306_1_ == GameSettings.Options.SHOW_CAPE)
+@@ -590,6 +583,4 @@
+             case 9:
+                 return this.field_74358_q;
+-            case 10:
+-                return this.field_74355_t;
+             case 11:
+                 return this.field_74353_u;
+@@ -853,8 +844,4 @@
+                     }
+ 
+-                    if (astring[0].equals("snooperEnabled"))
+-                    {
+-                        this.field_74355_t = astring[1].equals("true");
+-                    }
+-
+                     if (astring[0].equals("fullscreen"))
+@@ -1081,5 +1068,4 @@
+             printwriter.println("chatLinksPrompt:" + this.field_74358_q);
+             printwriter.println("chatOpacity:" + this.field_74357_r);
+-            printwriter.println("snooperEnabled:" + this.field_74355_t);
+             printwriter.println("fullscreen:" + this.field_74353_u);
+             printwriter.println("enableVsync:" + this.field_74352_v);
+@@ -1190,4 +1176,3 @@
+         CHAT_LINKS_PROMPT("options.chat.links.prompt", false, true),
+-        SNOOPER_ENABLED("options.snooper", false, true),
+         USE_FULLSCREEN("options.fullscreen", false, true),
+         ENABLE_VSYNC("options.vsync", false, true),
+@@ -1412,12 +1397,4 @@
+                 }
+ 
+-                try
+-                {
+-                    field_151477_a[GameSettings.Options.SNOOPER_ENABLED.ordinal()] = 10;
+-                }
+-                catch (NoSuchFieldError var7)
+-                {
+-                    ;
+-                }
+-
+                 try

@@ -1,0 +1,112 @@
+--- ../src-base/minecraft/net/minecraft/server/MinecraftServer.java
++++ ../src-work/minecraft/net/minecraft/server/MinecraftServer.java
+@@ -47,6 +47,4 @@
+ import net.minecraft.network.play.server.S03PacketTimeUpdate;
+ import net.minecraft.network.rcon.RConConsoleSource;
+-import net.minecraft.profiler.IPlayerUsage;
+-import net.minecraft.profiler.PlayerUsageSnooper;
+ import net.minecraft.profiler.Profiler;
+ import net.minecraft.server.dedicated.DedicatedServer;
+@@ -82,4 +80,4 @@
+ 
+-public abstract class MinecraftServer implements ICommandSender, Runnable, IPlayerUsage
++public abstract class MinecraftServer implements ICommandSender, Runnable
+ {
+     private static final Logger field_147145_h = LogManager.getLogger();
+@@ -87,5 +85,4 @@
+     private MinecraftServer field_71309_l;
+     private final ISaveFormat field_71310_m;
+-    private final PlayerUsageSnooper field_71307_n = new PlayerUsageSnooper("server", this, func_130071_aq());
+     private final File field_71308_o;
+     private final List field_71322_p = new ArrayList();
+@@ -368,8 +365,4 @@
+             }
+ 
+-            if (this.field_71307_n.func_76468_d())
+-            {
+-                this.field_71307_n.func_76470_e();
+-            }
+         }
+     }
+@@ -578,16 +571,4 @@
+         this.field_71311_j[this.field_71315_w % 100] = System.nanoTime() - i;
+         this.field_71304_b.func_76319_b();
+-        this.field_71304_b.func_76320_a("snooper");
+-
+-        if (!this.field_71307_n.func_76468_d() && this.field_71315_w > 100)
+-        {
+-            this.field_71307_n.func_76463_a();
+-        }
+-
+-        if (this.field_71315_w % 6000 == 0)
+-        {
+-            this.field_71307_n.func_76471_b();
+-        }
+-
+         this.field_71304_b.func_76319_b();
+         this.field_71304_b.func_76319_b();
+         FMLCommonHandler.instance().onPostServerTick();
+@@ -990,50 +971,4 @@
+         return this.field_147141_M;
+     }
+ 
+-    public void func_70000_a(PlayerUsageSnooper p_70000_1_)
+-    {
+-        p_70000_1_.func_152768_a("whitelist_enabled", Boolean.valueOf(false));
+-        p_70000_1_.func_152768_a("whitelist_count", Integer.valueOf(0));
+-        p_70000_1_.func_152768_a("players_current", Integer.valueOf(this.func_71233_x()));
+-        p_70000_1_.func_152768_a("players_max", Integer.valueOf(this.func_71275_y()));
+-        p_70000_1_.func_152768_a("players_seen", Integer.valueOf(this.field_71318_t.func_72373_m().length));
+-        p_70000_1_.func_152768_a("uses_auth", Boolean.valueOf(this.field_71325_x));
+-        p_70000_1_.func_152768_a("gui_state", this.func_71279_ae() ? "enabled" : "disabled");
+-        p_70000_1_.func_152768_a("run_time", Long.valueOf((func_130071_aq() - p_70000_1_.func_130105_g()) / 60L * 1000L));
+-        p_70000_1_.func_152768_a("avg_tick_ms", Integer.valueOf((int)(MathHelper.func_76127_a(this.field_71311_j) * 1.0E-6D)));
+-        int i = 0;
+-
+-        for (int j = 0; j < this.field_71305_c.length; ++j)
+-        {
+-            if (this.field_71305_c[j] != null)
+-            {
+-                WorldServer worldserver = this.field_71305_c[j];
+-                WorldInfo worldinfo = worldserver.func_72912_H();
+-                p_70000_1_.func_152768_a("world[" + i + "][dimension]", Integer.valueOf(worldserver.field_73011_w.field_76574_g));
+-                p_70000_1_.func_152768_a("world[" + i + "][mode]", worldinfo.func_76077_q());
+-                p_70000_1_.func_152768_a("world[" + i + "][difficulty]", worldserver.field_73013_u);
+-                p_70000_1_.func_152768_a("world[" + i + "][hardcore]", Boolean.valueOf(worldinfo.func_76093_s()));
+-                p_70000_1_.func_152768_a("world[" + i + "][generator_name]", worldinfo.func_76067_t().func_77127_a());
+-                p_70000_1_.func_152768_a("world[" + i + "][generator_version]", Integer.valueOf(worldinfo.func_76067_t().func_77131_c()));
+-                p_70000_1_.func_152768_a("world[" + i + "][height]", Integer.valueOf(this.field_71280_D));
+-                p_70000_1_.func_152768_a("world[" + i + "][chunks_loaded]", Integer.valueOf(worldserver.func_72863_F().func_73152_e()));
+-                ++i;
+-            }
+-        }
+-
+-        p_70000_1_.func_152768_a("worlds", Integer.valueOf(i));
+-    }
+-
+-    public void func_70001_b(PlayerUsageSnooper p_70001_1_)
+-    {
+-        p_70001_1_.func_152767_b("singleplayer", Boolean.valueOf(this.func_71264_H()));
+-        p_70001_1_.func_152767_b("server_brand", this.getServerModName());
+-        p_70001_1_.func_152767_b("gui_supported", GraphicsEnvironment.isHeadless() ? "headless" : "supported");
+-        p_70001_1_.func_152767_b("dedicated", Boolean.valueOf(this.func_71262_S()));
+-    }
+-
+-    public boolean func_70002_Q()
+-    {
+-        return true;
+-    }
+-
+     public abstract boolean func_71262_S();
+ 
+     public boolean func_71266_T()
+@@ -1155,9 +1090,4 @@
+     }
+ 
+-    @SideOnly(Side.CLIENT)
+-    public PlayerUsageSnooper func_80003_ah()
+-    {
+-        return this.field_71307_n;
+-    }
+-
+     public ChunkCoordinates func_82114_b()

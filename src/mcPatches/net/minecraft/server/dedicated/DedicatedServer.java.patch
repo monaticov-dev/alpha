@@ -1,0 +1,32 @@
+--- ../src-base/minecraft/net/minecraft/server/dedicated/DedicatedServer.java
++++ ../src-work/minecraft/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -22,5 +22,4 @@
+ import net.minecraft.network.rcon.RConThreadMain;
+ import net.minecraft.network.rcon.RConThreadQuery;
+-import net.minecraft.profiler.PlayerUsageSnooper;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.ServerEula;
+@@ -248,6 +248,5 @@
+                 this.func_147136_ar();
+                 this.func_82356_Z();
+                 this.func_110455_j();
+-                this.func_70002_Q();
+                 this.func_71191_d(this.field_71340_o.func_73669_a("max-build-height", 256));
+                 this.func_71191_d((this.func_71207_Z() + 8) / 16 * 16);
+@@ -346,15 +344,4 @@
+         return this.field_71340_o.func_73670_a("spawn-monsters", true);
+     }
+ 
+-    public void func_70000_a(PlayerUsageSnooper p_70000_1_)
+-    {
+-        p_70000_1_.func_152768_a("whitelist_enabled", Boolean.valueOf(this.func_71203_ab().func_72383_n()));
+-        p_70000_1_.func_152768_a("whitelist_count", Integer.valueOf(this.func_71203_ab().func_152598_l().length));
+-        super.func_70000_a(p_70000_1_);
+-    }
+-
+-    public boolean func_70002_Q()
+-    {
+-        return this.field_71340_o.func_73670_a("snooper-enabled", true);
+-    }
+-
+     public void func_71331_a(String p_71331_1_, ICommandSender p_71331_2_)

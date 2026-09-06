@@ -1,0 +1,18 @@
+--- ../src-base/minecraft/net/minecraft/client/gui/GuiOptions.java
++++ ../src-work/minecraft/net/minecraft/client/gui/GuiOptions.java
+@@ -80,4 +80,3 @@
+         this.field_146292_n.add(new GuiButton(105, this.field_146294_l / 2 - 155, this.field_146295_m / 6 + 144 - 6, 150, 20, I18n.func_135052_a("options.resourcepack", new Object[0])));
+-        this.field_146292_n.add(new GuiButton(104, this.field_146294_l / 2 + 5, this.field_146295_m / 6 + 144 - 6, 150, 20, I18n.func_135052_a("options.snooper.view", new Object[0])));
+         this.field_146292_n.add(new GuiButton(200, this.field_146294_l / 2 - 100, this.field_146295_m / 6 + 168, I18n.func_135052_a("gui.done", new Object[0])));
+     }
+@@ -122,8 +121,4 @@
+                 this.field_146297_k.func_147108_a(new ScreenChatOptions(this, this.field_146443_h));
+             }
+ 
+-            if (p_146284_1_.field_146127_k == 104)
+-            {
+-                this.field_146297_k.field_71474_y.func_74303_b();
+-                this.field_146297_k.func_147108_a(new GuiSnooper(this, this.field_146443_h));
+-            }
+-
+             if (p_146284_1_.field_146127_k == 200)

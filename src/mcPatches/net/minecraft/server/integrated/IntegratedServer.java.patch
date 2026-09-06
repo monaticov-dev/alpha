@@ -1,0 +1,24 @@
+--- ../src-base/minecraft/net/minecraft/server/integrated/IntegratedServer.java
++++ ../src-work/minecraft/net/minecraft/server/integrated/IntegratedServer.java
+@@ -12,5 +12,4 @@
+ import net.minecraft.client.multiplayer.ThreadLanServerPing;
+ import net.minecraft.crash.CrashReport;
+-import net.minecraft.profiler.PlayerUsageSnooper;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.util.CryptManager;
+@@ -190,15 +189,5 @@
+         return p_71230_1_;
+     }
+ 
+-    public void func_70000_a(PlayerUsageSnooper p_70000_1_)
+-    {
+-        super.func_70000_a(p_70000_1_);
+-        p_70000_1_.func_152768_a("snooper_partner", this.field_71349_l.func_71378_E().func_80006_f());
+-    }
+-
+-    public boolean func_70002_Q()
+-    {
+-        return Minecraft.func_71410_x().func_70002_Q();
+-    }
+-
+     public String func_71206_a(WorldSettings.GameType p_71206_1_, boolean p_71206_2_)
