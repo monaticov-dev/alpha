@@ -1,0 +1,14 @@
+[{
+  "modid": "alpha",
+  "name": "Alpha",
+  "description": "Minimal Forge 1.7.10 client base.",
+  "version": "${modVersion}",
+  "mcversion": "1.7.10",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["alpha"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}]

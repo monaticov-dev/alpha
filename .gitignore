@@ -1,0 +1,62 @@
+# Gradle
+.gradle/
+build/
+out/
+!build.gradle
+!settings.gradle
+
+# Runtime / generated
+run/
+logs/
+crash-reports/
+natives/
+config/
+mods/
+resourcepacks/
+saves/
+screenshots/
+world/
+eula.txt
+server.properties
+usernamecache.json
+usercache.json
+options.txt
+forge.cfg
+*.log
+*.gz
+latest.log
+fml-*.log
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS / temp
+*.tmp
+*.temp
+*.bak
+*~
+.DS_Store
+Thumbs.db
+
+# Local properties / credentials
+local.properties
+gradle-local.properties
+*.keystore
+*.jks
+
+# Cache
+*.cache
+
+# JVM
+hs_err_pid*.log
+replay_pid*.log
+
+# Project specific
+работа/
