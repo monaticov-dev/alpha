@@ -43,11 +43,12 @@ minecraft {
     // Latest LWJGL3 matching the bundled lwjgl3ify
     lwjgl3Version = '3.4.2'
 
-    // Bindings proven required by lwjgl3ify 3.0.31 references (glfw/openal/opengl
-    // for window/sound/render, jemalloc as the LWJGL3 default allocator, stb for
-    // texture stitching, sdl for the event loop/text input, spng for image loading).
-    // tinyfd is intentionally omitted: zero references in lwjgl3ify and Forge.
-    lwjgl3Bindings = ['glfw', 'openal', 'opengl', 'jemalloc', 'stb', 'sdl', 'spng']
+    // Bindings proven required by lwjgl3ify 3.0.31 references (openal
+    // for sound, opengl for render, jemalloc as the LWJGL3 default allocator,
+    // stb for texture stitching, sdl for the event loop/text input, spng for
+    // image loading). glfw and tinyfd are intentionally omitted: zero references
+    // in lwjgl3ify 3.0.31 sources (verified against the -sources jar).
+    lwjgl3Bindings = ['openal', 'opengl', 'jemalloc', 'stb', 'sdl', 'spng']
 
     // Generate VERSION/MOD_ID fields in the injected Tags class
     injectedTags.put('VERSION', project.version)
