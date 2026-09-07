@@ -13,6 +13,8 @@ public class Alpha {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         LOG.info("Alpha preInit");
-        WalkTest.maybeStart();
+        if (event.getSide().isClient()) {
+            WalkTest.maybeStart();
+        }
     }
 }
