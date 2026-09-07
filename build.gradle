@@ -93,6 +93,13 @@ configurations {
         canBeConsumed = false
         canBeResolved = true
     }
+    // ICU for obfuscated runs only: the stock obfuscated FontRenderer needs it,
+    // our patched sources do not (see FontRenderer.java.patch). Never on deobf paths.
+    obfIcu {
+        description = 'ICU4J for obfuscated dev runs only'
+        canBeConsumed = false
+        canBeResolved = true
+    }
 }
 
 dependencies {
@@ -101,6 +108,8 @@ dependencies {
     modernJavaPatchDependencies('com.github.GTNewHorizons:lwjgl3ify:3.0.31:forgePatches') {
         transitive = false
     }
+    // Stock obfuscated client needs ICU (its FontRenderer imports com.ibm.icu)
+    obfIcu 'com.ibm.icu:icu4j-core-mojang:51.2'
 }
 
 // ---------------------------------------------------------------------------
@@ -323,5 +332,13 @@ gradle.projectsEvaluated { g ->
     }
     if (cfg.dependencies.any { d -> d.group == 'com.ibm.icu' }) {
         throw new GradleException('ICU removal: ICU dependency still present after removal')
+    }
+    // Obf dev runs need ICU for the stock obfuscated FontRenderer.
+    // Deobf/modern classpaths are untouched (separate configuration).
+    g.rootProject.tasks.named('runObfClient') { t ->
+        t.classpath(g.rootProject.configurations.obfIcu)
+    }
+    g.rootProject.tasks.named('runObfServer') { t ->
+        t.classpath(g.rootProject.configurations.obfIcu)
     }
 }
