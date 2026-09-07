@@ -110,6 +110,15 @@ dependencies {
     }
     // Stock obfuscated client needs ICU (its FontRenderer imports com.ibm.icu)
     obfIcu 'com.ibm.icu:icu4j-core-mojang:51.2'
+    // ASM API for our own coremod transformer (compile-only; runtime ships ASM 5.0.3 via FML)
+    compileOnly 'org.ow2.asm:asm-debug-all:5.0.3'
+}
+
+// Our coremod entry point (discovered by FML from the jar manifest)
+tasks.named('jar') {
+    manifest {
+        attributes('FMLCorePlugin': 'com.alpha.AlphaCoremod')
+    }
 }
 
 // ---------------------------------------------------------------------------
