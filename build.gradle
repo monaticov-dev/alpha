@@ -43,11 +43,11 @@ minecraft {
     // Latest LWJGL3 matching the bundled lwjgl3ify
     lwjgl3Version = '3.4.2'
 
-    // Bindings proven required by lwjgl3ify 3.0.31 references (openal
+    // Bindings proven required by lwjgl3ify 3.0.32 references (openal
     // for sound, opengl for render, jemalloc as the LWJGL3 default allocator,
     // stb for texture stitching, sdl for the event loop/text input, spng for
     // image loading). glfw and tinyfd are intentionally omitted: zero references
-    // in lwjgl3ify 3.0.31 sources (verified against the -sources jar).
+    // in lwjgl3ify 3.0.32 sources (verified against the -sources jar).
     lwjgl3Bindings = ['openal', 'opengl', 'jemalloc', 'stb', 'sdl', 'spng']
 
     // Generate VERSION/MOD_ID fields in the injected Tags class
@@ -104,8 +104,8 @@ configurations {
 
 dependencies {
     // lwjgl3ify: brings LWJGL3 and Java 17+ support to Minecraft 1.7.10 (pulls UniMixins transitively)
-    modernJavaDependencies 'com.github.GTNewHorizons:lwjgl3ify:3.0.31'
-    modernJavaPatchDependencies('com.github.GTNewHorizons:lwjgl3ify:3.0.31:forgePatches') {
+    modernJavaDependencies 'com.github.GTNewHorizons:lwjgl3ify:3.0.32'
+    modernJavaPatchDependencies('com.github.GTNewHorizons:lwjgl3ify:3.0.32:forgePatches') {
         transitive = false
     }
     // Stock obfuscated client needs ICU (its FontRenderer imports com.ibm.icu)
