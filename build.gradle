@@ -18,7 +18,7 @@ abstract class RunModernJavaMinecraftTask extends RunMinecraftTask {
 
 plugins {
     id 'java-library'
-    id 'com.gtnewhorizons.retrofuturagradle' version '2.0.3'
+    id 'com.gtnewhorizons.retrofuturagradle' version '2.0.4'
 }
 
 group = 'com.alpha'
